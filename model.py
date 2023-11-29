@@ -164,6 +164,9 @@ class OffensiveSpell:
     def damage(self, value):
         self._damage = value
 
+    def upgrade(self, value):
+        self._damage += value
+
 
 class Player:
     def __init__(self, armor, weapon, hp, mana, gold):
@@ -178,6 +181,7 @@ class Player:
         self._maxmana = mana
         self.name = "palladin"
         self._gold = gold
+        self._rest_value = 20
 
     # Getter i setter dla armor
 
@@ -201,8 +205,8 @@ class Player:
     def mana(self):
         return self._mana
 
-    @mana.setter
-    def mana(self, value):
+
+    def set_mana(self, value):
         self._mana = value
 
     @property
@@ -253,9 +257,9 @@ class Player:
     def maxhp(self):
         return self._maxhp
 
-    @hp.setter
-    def hp(self, value):
-            self._hp = value
+
+    def set_hp(self, value):
+        self._hp = value
 
     def is_dead(self):
         if( self._hp > 0):
@@ -280,6 +284,18 @@ class Player:
             print("mana {}".format(self._mana))
             return self._thunderstrike.damage
 
+    def get_spell_damage(self,option):
+        if (option == "WEAPON"):
+            return self._weapon.damage
+        if (option == "FIREBALL"):
+            return self._fireball.damage
+        if (option == "HOLYMISSLE"):
+            return self._holymissle.damage
+        if (option == "THUNDERSTRIKE"):
+            return self._thunderstrike.damage
+
+    def get_rest_stats(self):
+        return self._rest_value
 
 
     def take_damage(self,damage):
@@ -288,8 +304,8 @@ class Player:
         return damage-self._armor.reduction
 
     def rest(self):
-        self._hp += 20
-        self._mana += 10
+        self._hp += self._rest_value
+        self._mana += (self._rest_value//2)
         if(self._hp>self._maxhp):
             self._hp = self.maxhp
         if(self._mana>self._maxmana):
@@ -300,6 +316,26 @@ class Player:
             self._weapon= item
         if (isinstance(item, Armor)):
             self._armor = item
+
+    def upgrade_hp(self, value):
+        self._maxhp += value
+        self._hp = self.maxhp
+    def upgrade_mana(self, value):
+        self._maxmana += value
+        self._mana = self._mana
+
+    def upgrade_spell(self,spelltype):
+        if(spelltype=="FIREBALL"):
+            self._fireball.upgrade(20)
+        if(spelltype=="HOLYMISSLE"):
+            self._holymissle.upgrade(20)
+        if(spelltype=="THUNDERSTRIKE"):
+            self._thunderstrike.upgrade(20)
+    def upgrade_rest(self,value):
+        self._rest_value += value
+
+    def add_gold(self, value):
+        self._gold += value
 
 
 
