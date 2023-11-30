@@ -1,7 +1,9 @@
 import time
 from controller import Fight
 from asciimatics.effects import Cycle, Stars, Snow, Print, Sprite
-from asciimatics.renderers import FigletText,StaticRenderer, BarChart
+from asciimatics.renderers import FigletText,StaticRenderer, BarChart, Rainbow, SpeechBubble
+from asciimatics.particles import RingFirework, SerpentFirework, StarFirework, \
+    PalmFirework
 from asciimatics.scene import Scene
 from asciimatics.event import KeyboardEvent
 from asciimatics.screen import Screen
@@ -16,6 +18,7 @@ import sys
 import GameSprites
 import random
 from controller import Fight
+from random import choice,randint
 
 global FightController
 FightController = Fight()
@@ -233,16 +236,16 @@ class NextSceneFrame(Frame):
         FightController.setisresting(False)
         if(self._moveto == "PLAYERTURN"):
             FightController.enemyTurn()
-            if(FightController._isplayerdead  == False):
+            if(FightController._ismonsterdead == False):
                 raise NextScene(FightController.scene_controller("ENEMYATTACK"))
-            else:
-                raise NextScene("DEATH")
-        elif(self._moveto == "ENEMYTURN"):
-            if (FightController._ismonsterdead == False):
-                raise NextScene(FightController.scene_controller("FIGHT"))
             else:
                 FightController.reset_after_win()
                 raise NextScene(FightController.scene_controller("WIN"))
+        elif(self._moveto == "ENEMYTURN"):
+            if (FightController.isPlayerDead == False):
+                raise NextScene(FightController.scene_controller("FIGHT"))
+            else:
+                raise NextScene("DEATH")
     def get_damage(self):
         """Helper method to format the HP text."""
         if(self._moveto == "PLAYERTURN"):
@@ -462,7 +465,7 @@ class gotoMenu(Frame):
                          7,
                          screen.width-2,
                          can_scroll=False,
-                         title="Menu",
+                         title="YOU WIN",
                          x=1, y=screen.height-7
                          )
         self.palette = get_palette()
@@ -478,7 +481,7 @@ class gotoMenu(Frame):
         raise NextScene("TOWN")
 
     def get_reward(self):
-        return "         Your Reward is: {}".format(FightController.show_reward())
+        return "         Your Reward is: {} gold".format(FightController.show_reward())
 
     #poprawic
 
@@ -486,19 +489,40 @@ class gotoMenu(Frame):
         self.gold_reward.text = self.get_reward()
         super(gotoMenu, self)._update(frame_no)
 
-class EndGame(Frame):
+
+class Death(Frame):
     def __init__(self, screen):
         super().__init__(screen,
                          7,
                          screen.width-2,
                          can_scroll=False,
-                         title="Menu",
+                         title="YOU DIED",
                          x=1, y=screen.height-7
                          )
         self.palette = get_palette()
         layout = Layout([1, 1, 1], fill_frame=True)
         self.add_layout(layout)
-        layout.add_widget(Button("   GO TO MENU", self._continue, add_box=False), 1)
+        layout.add_widget(Divider(line_char=""), 1)
+        layout.add_widget(Button("               RESTART", self._continue, add_box=False), 1)
+        self.fix()
+
+    def _continue(self):
+        FightController.reset()
+        raise NextScene("MENU")
+
+class EndGame(Frame):
+    def __init__(self, screen):
+        super().__init__(screen,
+                         5,
+                         screen.width-2,
+                         can_scroll=False,
+                         title="YOU END THE GAME",
+                         x=1, y=screen.height-5
+                         )
+        self.palette = get_palette()
+        layout = Layout([1, 1, 1], fill_frame=True)
+        self.add_layout(layout)
+        layout.add_widget(Button("                    QUIT", self._continue, add_box=False), 1)
         self.fix()
 
     def _continue(self):
@@ -635,7 +659,7 @@ class Reaper(Sprite):
             renderer_dict={
              "default": StaticRenderer(GameSprites.reaper())
             },
-        colour = Screen.COLOUR_RED,
+        colour = Screen.COLOUR_MAGENTA,
         path = path,
         start_frame = start_frame,
         stop_frame = stop_frame
@@ -648,7 +672,7 @@ class Centaur(Sprite):
             renderer_dict={
              "default": StaticRenderer(GameSprites.centaur())
             },
-        colour = Screen.COLOUR_RED,
+        colour = Screen.COLOUR_GREEN,
         path = path,
         start_frame = start_frame,
         stop_frame = stop_frame
@@ -718,12 +742,129 @@ class TownSprite(Sprite):
         start_frame = start_frame,
         stop_frame = stop_frame
         )
-
+class Treasure(Sprite):
+    def __init__(self, screen,path, start_frame=0, stop_frame=0):
+        super(Treasure,self).__init__(
+            screen,
+            renderer_dict={
+             "default": StaticRenderer(GameSprites.treasure())
+            },
+        colour = Screen.COLOUR_YELLOW,
+        path = path,
+        start_frame = start_frame,
+        stop_frame = stop_frame
+        )
+class Sword(Sprite):
+    def __init__(self, screen,path, start_frame=0, stop_frame=0):
+        super(Sword,self).__init__(
+            screen,
+            renderer_dict={
+             "default": StaticRenderer(GameSprites.sword())
+            },
+        colour = Screen.COLOUR_WHITE,
+        path = path,
+        start_frame = start_frame,
+        stop_frame = stop_frame
+        )
+class Fireball(Sprite):
+    def __init__(self, screen,path, start_frame=0, stop_frame=0):
+        super(Fireball,self).__init__(
+            screen,
+            renderer_dict={
+             "default": StaticRenderer(GameSprites.Fireball())
+            },
+        colour = Screen.COLOUR_RED,
+        path = path,
+        start_frame = start_frame,
+        stop_frame = stop_frame
+        )
+class Holymissle(Sprite):
+    def __init__(self, screen,path, start_frame=0, stop_frame=0):
+        super(Holymissle,self).__init__(
+            screen,
+            renderer_dict={
+             "default": StaticRenderer(GameSprites.Holymissle())
+            },
+        colour = Screen.COLOUR_YELLOW,
+        path = path,
+        start_frame = start_frame,
+        stop_frame = stop_frame
+        )
+class Thunderstrike(Sprite):
+    def __init__(self, screen,path, start_frame=0, stop_frame=0):
+        super(Thunderstrike,self).__init__(
+            screen,
+            renderer_dict={
+             "default": StaticRenderer(GameSprites.Thunderstrike())
+            },
+        colour = Screen.COLOUR_YELLOW,
+        path = path,
+        start_frame = start_frame,
+        stop_frame = stop_frame
+        )
+class Arrow(Sprite):
+    def __init__(self, screen,path, start_frame=0, stop_frame=0):
+        super(Arrow,self).__init__(
+            screen,
+            renderer_dict={
+             "default": StaticRenderer(GameSprites.arrow())
+            },
+        colour = Screen.COLOUR_YELLOW,
+        path = path,
+        start_frame = start_frame,
+        stop_frame = stop_frame
+        )
+class SmallSkull(Sprite):
+    def __init__(self, screen,path, start_frame=0, stop_frame=0):
+        super(SmallSkull,self).__init__(
+            screen,
+            renderer_dict={
+             "default": StaticRenderer(GameSprites.smallskull())
+            },
+        colour = Screen.COLOUR_WHITE,
+        path = path,
+        start_frame = start_frame,
+        stop_frame = stop_frame
+        )
+class Crown(Sprite):
+    def __init__(self, screen,path, start_frame=0, stop_frame=0):
+        super(Crown,self).__init__(
+            screen,
+            renderer_dict={
+             "default": StaticRenderer(GameSprites.crown())
+            },
+        colour = Screen.COLOUR_YELLOW,
+        path = path,
+        start_frame = start_frame,
+        stop_frame = stop_frame
+        )
+class BigSkull(Sprite):
+    def __init__(self, screen,path, start_frame=0, stop_frame=0):
+        super(BigSkull,self).__init__(
+            screen,
+            renderer_dict={
+             "default": StaticRenderer(GameSprites.bigskull())
+            },
+        colour = Screen.COLOUR_WHITE,
+        path = path,
+        start_frame = start_frame,
+        stop_frame = stop_frame
+        )
 
 #PATHS
 class PlayerMove(DynamicPath):
     def process_event(self, event):
             return event
+
+def _speak(screen, text, pos, start,duration):
+    return Print(
+        screen,
+        SpeechBubble(text, "L", uni=screen.unicode_aware),
+        x=pos[0] + 4, y=pos[1] - 4,
+        colour=Screen.COLOUR_CYAN,
+        clear=True,
+        start_frame=start,
+        stop_frame=start+duration)
 
 
 def game(screen, scene):
@@ -731,10 +872,6 @@ def game(screen, scene):
     scenes = []
     #SCENA MENU#
     MenuObject = Menu(screen)
-    cycle_effect = Cycle(
-            screen,
-            FigletText("PALLANDIN", font='standard'),
-            screen.height // 2 -15)
     effectsMenu = [
         Cycle(
             screen,
@@ -772,63 +909,71 @@ def game(screen, scene):
     global devilpath
     global Reaper
     path = PlayerMove(screen, 10, screen.height // 2-3)
+    PlayerStand = PlayerMove(screen,15,screen.height//2-3)
     devilpath = PlayerMove(screen, screen.width-20, screen.height // 2-3)
-
     effectsFIGHTREAPER = [
-        Player(screen, path),
+        Player(screen, PlayerStand),
         Reaper(screen, devilpath),
         FightFrame(screen),
     ]
     scenes.append(Scene(effectsFIGHTREAPER, -1, name="FIGHTREAPER"))
-    attackPath = Path()
-    attackPath.jump_to( 10, screen.height // 2)
-    #attackPath.move_straight_to(16, 10, (screen.width + 16) // 2)
-    #attackPath.wait(100)
+    Weaponpath = Path()
+    Weaponpath.jump_to(40, screen.height//2-3)
+    Weaponpath.move_straight_to(screen.width-20, screen.height // 2-3,24)
+
     effectsPlayerAttackReaperWeapon = [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Reaper(screen, devilpath),
-        NextSceneFrame(screen,"PLAYERTURN")
+        NextSceneFrame(screen,"PLAYERTURN"),
+        Sword(screen,Weaponpath)
     ]
     scenes.append(Scene(effectsPlayerAttackReaperWeapon, -1, name="PLAYERATTACKREAPERWEAPON"))
     effectsPlayerAttackReaperFireball = [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Reaper(screen, devilpath),
-        NextSceneFrame(screen, "PLAYERTURN")
+        NextSceneFrame(screen, "PLAYERTURN"),
+        Fireball(screen,Weaponpath)
     ]
     scenes.append(Scene(effectsPlayerAttackReaperFireball, -1, name="PLAYERATTACKREAPERFIREBALL"))
     effectsPlayerAttackReaperHollymissle = [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Reaper(screen, devilpath),
-        NextSceneFrame(screen, "PLAYERTURN")
+        NextSceneFrame(screen, "PLAYERTURN"),
+        Holymissle(screen,Weaponpath)
     ]
     scenes.append(Scene(effectsPlayerAttackReaperHollymissle, -1, name="PLAYERATTACKREAPERHOLYMISSLE"))
     effectsPlayerAttackReaperThunderStrike = [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Reaper(screen, devilpath),
-        NextSceneFrame(screen, "PLAYERTURN")
+        NextSceneFrame(screen, "PLAYERTURN"),
+        Thunderstrike(screen,Weaponpath)
     ]
     scenes.append(Scene(effectsPlayerAttackReaperThunderStrike, -1, name="PLAYERATTACKREAPERTHUNDERSTRIKE"))
     effectsPlayerAttackReaperRest= [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Reaper(screen, devilpath),
+        _speak(screen, "Zzz...", (screen.width // 2-35, screen.height // 2-7), 0,500),
         NextSceneFrame(screen, "PLAYERTURN")
     ]
     scenes.append(Scene(effectsPlayerAttackReaperRest, -1, name="PLAYERATTACKREAPERREST"))
-
+    AttackReaperPath = Path()
+    AttackReaperPath.jump_to(screen.width-40, screen.height // 2-3)
+    AttackReaperPath.move_straight_to(10, screen.height//2-3,24)
     effectsEnemyAttackReaper = [
-        Player(screen,path),
+        Player(screen,PlayerStand),
         Reaper(screen, devilpath),
-        NextSceneFrame(screen,"ENEMYTURN")
+        NextSceneFrame(screen,"ENEMYTURN"),
+        SmallSkull(screen,AttackReaperPath)
     ]
     scenes.append(Scene(effectsEnemyAttackReaper, -1, name="ENEMYATTACKREAPER"))
     effectsAttackTypeReaper = [
-        Player(screen, path),
+        Player(screen, PlayerStand),
         Reaper(screen, devilpath),
         AttackType(screen)
     ]
     scenes.append(Scene(effectsAttackTypeReaper, -1, name="ATTACKTYPEREAPER"))
     effectsSpellTypeReaper = [
-        Player(screen, path),
+        Player(screen, PlayerStand),
         Reaper(screen, devilpath),
         SpellType(screen)
     ]
@@ -837,64 +982,67 @@ def game(screen, scene):
     # SCENY CENTAUR FIGHT#
     # SCENY CENTAUR FIGHT#
     global Centaur
-    path = PlayerMove(screen, 10, screen.height // 2 - 3)
-    devilpath = PlayerMove(screen, screen.width - 20, screen.height // 2 - 3)
 
     effectsFIGHTCentaur = [
-        Player(screen, path),
+        Player(screen, PlayerStand),
         Centaur(screen, devilpath),
         FightFrame(screen),
     ]
     scenes.append(Scene(effectsFIGHTCentaur, -1, name="FIGHTCENTAUR"))
-    attackPath = Path()
-    attackPath.jump_to(10, screen.height // 2)
-    # attackPath.move_straight_to(16, 10, (screen.width + 16) // 2)
-    # attackPath.wait(100)
     effectsPlayerAttackCentaurWeapon = [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Centaur(screen, devilpath),
-        NextSceneFrame(screen, "PLAYERTURN")
+        NextSceneFrame(screen, "PLAYERTURN"),
+        Sword(screen, Weaponpath)
     ]
     scenes.append(Scene(effectsPlayerAttackCentaurWeapon, -1, name="PLAYERATTACKCENTAURWEAPON"))
     effectsPlayerAttackCentaurFireball = [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Centaur(screen, devilpath),
-        NextSceneFrame(screen, "PLAYERTURN")
+        NextSceneFrame(screen, "PLAYERTURN"),
+        Fireball(screen, Weaponpath)
     ]
     scenes.append(Scene(effectsPlayerAttackCentaurFireball, -1, name="PLAYERATTACKCENTAURFIREBALL"))
     effectsPlayerAttackCentaurHollymissle = [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Centaur(screen, devilpath),
-        NextSceneFrame(screen, "PLAYERTURN")
+        NextSceneFrame(screen, "PLAYERTURN"),
+        Holymissle(screen, Weaponpath)
     ]
     scenes.append(Scene(effectsPlayerAttackCentaurHollymissle, -1, name="PLAYERATTACKCENTAURHOLYMISSLE"))
     effectsPlayerAttackCentaurThunderStrike = [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Centaur(screen, devilpath),
-        NextSceneFrame(screen, "PLAYERTURN")
+        NextSceneFrame(screen, "PLAYERTURN"),
+        Thunderstrike(screen, Weaponpath)
     ]
     scenes.append(Scene(effectsPlayerAttackCentaurThunderStrike, -1, name="PLAYERATTACKCENTAURTHUNDERSTRIKE"))
     effectsPlayerAttackCentaurRest = [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Centaur(screen, devilpath),
+        _speak(screen, "Zzz...", (screen.width // 2 - 35, screen.height // 2 - 7), 0, 500),
         NextSceneFrame(screen, "PLAYERTURN")
     ]
     scenes.append(Scene(effectsPlayerAttackCentaurRest, -1, name="PLAYERATTACKCENTAURREST"))
+    AttackCentaurPath = Path()
+    AttackCentaurPath.jump_to(screen.width-65, screen.height // 2-8)
+    AttackCentaurPath.move_straight_to(-20, screen.height // 2 -8,24)
 
     effectsEnemyAttackCentaur = [
-        Player(screen, path),
+        Player(screen, PlayerStand),
         Centaur(screen, devilpath),
-        NextSceneFrame(screen, "ENEMYTURN")
+        NextSceneFrame(screen, "ENEMYTURN"),
+        Arrow(screen,AttackCentaurPath)
     ]
     scenes.append(Scene(effectsEnemyAttackCentaur, -1, name="ENEMYATTACKCENTAUR"))
     effectsAttackTypeCentaur = [
-        Player(screen, path),
+        Player(screen, PlayerStand),
         Centaur(screen, devilpath),
         AttackType(screen)
     ]
     scenes.append(Scene(effectsAttackTypeCentaur, -1, name="ATTACKTYPECENTAUR"))
     effectsSpellTypeCentaur = [
-        Player(screen, path),
+        Player(screen, PlayerStand),
         Centaur(screen, devilpath),
         SpellType(screen)
     ]
@@ -902,98 +1050,137 @@ def game(screen, scene):
     #SCENY DRAGON FIGHT
     # SCENY DRAGON FIGHT
     global Dragon
-    path = PlayerMove(screen, 10, screen.height // 2 - 3)
-    devilpath = PlayerMove(screen, screen.width - 20, screen.height // 2 - 3)
 
     effectsFIGHTDragon = [
-        Player(screen, path),
+        Player(screen, PlayerStand),
         Dragon(screen, devilpath),
         FightFrame(screen),
     ]
     scenes.append(Scene(effectsFIGHTDragon, -1, name="FIGHTDRAGON"))
-    attackPath = Path()
-    attackPath.jump_to(10, screen.height // 2)
-    # attackPath.move_straight_to(16, 10, (screen.width + 16) // 2)
-    # attackPath.wait(100)
+
     effectsPlayerAttackDragonWeapon = [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Dragon(screen, devilpath),
-        NextSceneFrame(screen, "PLAYERTURN")
+        NextSceneFrame(screen, "PLAYERTURN"),
+        Sword(screen, Weaponpath)
     ]
     scenes.append(Scene(effectsPlayerAttackDragonWeapon, -1, name="PLAYERATTACKDRAGONWEAPON"))
     effectsPlayerAttackDragonFireball = [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Dragon(screen, devilpath),
-        NextSceneFrame(screen, "PLAYERTURN")
+        NextSceneFrame(screen, "PLAYERTURN"),
+        Fireball(screen, Weaponpath)
     ]
     scenes.append(Scene(effectsPlayerAttackDragonFireball, -1, name="PLAYERATTACKDRAGONFIREBALL"))
     effectsPlayerAttackDragonHollymissle = [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Dragon(screen, devilpath),
-        NextSceneFrame(screen, "PLAYERTURN")
+        NextSceneFrame(screen, "PLAYERTURN"),
+        Holymissle(screen, Weaponpath)
     ]
     scenes.append(Scene(effectsPlayerAttackDragonHollymissle, -1, name="PLAYERATTACKDRAGONHOLYMISSLE"))
     effectsPlayerAttackDragonThunderStrike = [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Dragon(screen, devilpath),
-        NextSceneFrame(screen, "PLAYERTURN")
+        NextSceneFrame(screen, "PLAYERTURN"),
+        Thunderstrike(screen, Weaponpath)
     ]
     scenes.append(Scene(effectsPlayerAttackDragonThunderStrike, -1, name="PLAYERATTACKDRAGONTHUNDERSTRIKE"))
     effectsPlayerAttackDragonRest = [
-        Player(screen, attackPath),
+        Player(screen, PlayerStand),
         Dragon(screen, devilpath),
+        _speak(screen, "Zzz...", (screen.width // 2 - 35, screen.height // 2 - 7), 0, 500),
         NextSceneFrame(screen, "PLAYERTURN")
     ]
     scenes.append(Scene(effectsPlayerAttackDragonRest, -1, name="PLAYERATTACKDRAGONREST"))
 
+    AttackCentaurPath = Path()
+    AttackCentaurPath.jump_to(screen.width - 65, screen.height // 2 - 8)
+    AttackCentaurPath.move_straight_to(-20, screen.height // 2 - 8, 24)
+
     effectsEnemyAttack = [
-        Player(screen, path),
+        Player(screen, PlayerStand),
         Dragon(screen, devilpath),
-        NextSceneFrame(screen, "ENEMYTURN")
+        NextSceneFrame(screen, "ENEMYTURN"),
+        Fireball(screen,AttackCentaurPath)
     ]
     scenes.append(Scene(effectsEnemyAttack, -1, name="ENEMYATTACKDRAGON"))
     effectsAttackTypeDragon = [
-        Player(screen, path),
+        Player(screen, PlayerStand),
         Dragon(screen, devilpath),
         AttackType(screen)
     ]
     scenes.append(Scene(effectsAttackTypeDragon, -1, name="ATTACKTYPEDRAGON"))
     effectsSpellTypeDragon = [
-        Player(screen, path),
+        Player(screen, PlayerStand),
         Dragon(screen, devilpath),
         SpellType(screen)
     ]
     scenes.append(Scene(effectsSpellTypeDragon, -1, name="SPELLTYPEDRAGON"))
     ## inne
     effectsDeath = [
-        Player(screen, path),
-        gotoMenu(screen),
-        Cycle(
-            screen,
-            FigletText("YOU DIE", font='standard'),
-            screen.height // 2 - 15)
+        BigSkull(screen, PlayerMove(screen, screen.width // 2, screen.height // 2)),
+        Death(screen),
+
     ]
     scenes.append(Scene(effectsDeath, -1, name="DEATH"))
+    TreasurePath = PlayerMove(screen,screen.width//2-5,screen.height//2)
     effectsWin = [
-        Player(screen, path ),
-        gotoMenu(screen),
         Cycle(
             screen,
             FigletText("YOU WIN", font='standard'),
             screen.height // 2 - 15),
+        Treasure(screen,TreasurePath),
+        gotoMenu(screen),
 
     ]
+    for _ in range(20):
+        fireworks = [
+            (PalmFirework, 25, 30),
+            (PalmFirework, 25, 30),
+            (StarFirework, 25, 35),
+            (StarFirework, 25, 35),
+            (StarFirework, 25, 35),
+            (RingFirework, 20, 30),
+            (SerpentFirework, 30, 35),
+        ]
+    firework, start, stop = choice(fireworks)
+    effectsWin.insert(
+            1,
+            firework(screen,
+                     randint(0, screen.width),
+                     randint(screen.height // 8, screen.height * 3 // 4),
+                     randint(start, stop),
+                     start_frame=randint(0, 250)))
     scenes.append(Scene(effectsWin, -1, name="WIN"))
 
     effectsEndGame = [
-        Player(screen, path),
         EndGame(screen),
         Cycle(
             screen,
-            FigletText("YOU WIN", font='standard'),
+            FigletText("YOU END THE GAME", font='standard'),
             screen.height // 2 - 15),
-
+        Crown(screen, PlayerMove(screen,screen.width//2,screen.height//2))
     ]
+    for _ in range(20):
+        fireworks = [
+            (PalmFirework, 25, 30),
+            (PalmFirework, 25, 30),
+            (StarFirework, 25, 35),
+            (StarFirework, 25, 35),
+            (StarFirework, 25, 35),
+            (RingFirework, 20, 30),
+            (SerpentFirework, 30, 35),
+        ]
+    firework, start, stop = choice(fireworks)
+    effectsEndGame.insert(1,
+            firework(screen,
+                     randint(0, screen.width),
+                     randint(screen.height // 8, screen.height * 3 // 4),
+                     randint(start, stop),
+                     start_frame=randint(0, 250))
+
+    )
     scenes.append(Scene(effectsEndGame, -1, name="ENDGAME"))
     BlacksmithPath = PlayerMove(screen, screen.width - 28, screen.height // 2 + 5)
     effectsBlackSmith = [

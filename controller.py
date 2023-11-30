@@ -2,10 +2,10 @@ import model as mod
 from model import Player, Armor,Weapon,OffensiveSpell,Monster
 armor = Armor("basic",10,100 )
 weapon = Weapon("Sword", 100,100)
-monster1 = Monster("Reaper",40,120,"HOLY","THUNDER")
-monster2 = Monster("Centaur", 50,200,"THUNDER","HOLY")
-monster3 = Monster("Dragon", 50,300,"HOLY","FIRE")
-monster4 = Monster("Bezimienny", 9999,9999,"HOLY","FIRE")
+monster1 = Monster("Reaper", 40, 120, "THUNDER", "HOLY")
+monster2 = Monster("Centaur", 50, 200, "HOLY", "FIRE")
+monster3 = Monster("Dragon", 60, 300, "FIRE", "THUNDER")
+monster4 = Monster("Bezimienny", 9999, 9999, "HOLY", "FIRE")
 monsters = [ monster1, monster2,monster3, monster4]
 armortobuy1 = Armor("Cloth Armor",10,20 )
 armortobuy2 = Armor("Bramble Vest",20,100 )
@@ -244,6 +244,7 @@ class Fight:
 
 
     def reset_after_win(self):
+        self._ismonsterdead = False
         self._player.set_hp(self._player.maxhp)
         self._player.set_mana(self._player.maxmana)
         self._iterator += 1
@@ -331,6 +332,47 @@ class Fight:
             return 150
         if (self._iterator == 3):
             return 250
+
+    def reset(self):
+        """Reset the Fight class and shops to their initial state."""
+        # Reinitialize player with default armor and weapon
+        self._player = Player(armor, weapon, 150, 50, 40)
+
+        monster1 = Monster("Reaper", 40, 120, "THUNDER", "HOLY")
+        monster2 = Monster("Centaur", 50, 200, "HOLY", "FIRE")
+        monster3 = Monster("Dragon", 50, 300, "FIRE", "THUNDER")
+        monster4 = Monster("Bezimienny", 9999, 9999, "HOLY", "FIRE")
+
+
+        # Reset the list of enemies
+        self._enemies = [monster1, monster2, monster3, monster4]
+
+        # Set the current enemy to the first in the list
+        self._current = self._enemies[0]
+
+        # Reset other attributes
+        self._iterator = 0
+        self._lastdamageplayer = 0
+        self._lastdamagemonster = 0
+        self._ismonsterdead = False
+        self._isplayerdead = False
+        self._isresting = False
+
+        # Reset Blacksmith shop
+        self._blacksmith = Shop()
+        self._blacksmith.add_item(armortobuy1)
+        self._blacksmith.add_item(armortobuy2)
+        self._blacksmith.add_item(armortobuy3)
+
+        # Reset WeaponMaster shop
+        self._weaponmaster = Shop()
+        self._weaponmaster.add_item(weapon1)
+        self._weaponmaster.add_item(weapon2)
+        self._weaponmaster.add_item(weapon3)
+
+        # Reset Wizard if its state changes during the game
+        self._wizard = Wizard()
+
 
 
 
