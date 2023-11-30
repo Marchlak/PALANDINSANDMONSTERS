@@ -1,6 +1,6 @@
 import time
 from controller import Fight
-from asciimatics.effects import Cycle, Stars, Snow, Print, Sprite
+from asciimatics.effects import Cycle, Stars, Snow, Print, Sprite, Julia
 from asciimatics.renderers import FigletText,StaticRenderer, BarChart, Rainbow, SpeechBubble
 from asciimatics.particles import RingFirework, SerpentFirework, StarFirework, \
     PalmFirework
@@ -545,7 +545,7 @@ class Menu(Frame):
         layout.add_widget(Divider(line_char=""))
         layout.add_widget(Button("     NEW GAME   ", self._new_game,add_box=False), 0)
         layout.add_widget(Divider(line_char=""))
-        layout.add_widget(Button("     CONTINUE   ", self._quit,add_box=False), 0)
+        layout.add_widget(Button("    HOW TO PLAY", self._how_to_play,add_box=False), 0)
         layout.add_widget(Divider(line_char=""))
         layout.add_widget(Button("       INFO   ", self._info,add_box=False), 0)
         layout.add_widget(Divider(""))
@@ -562,6 +562,10 @@ class Menu(Frame):
     @staticmethod
     def _new_game():
         raise NextScene("TOWN")
+
+    @staticmethod
+    def _how_to_play():
+        raise NextScene("HOWTOPLAY")
 
 class Town(Frame):
     def __init__(self, screen):
@@ -617,11 +621,36 @@ class Info(Frame):
         self.set_theme("green")
         layout1 = Layout([1], fill_frame=True)
         self.add_layout(layout1)
-        layout1.add_widget(Label(chr(random.randint(65, 90))),0)
         layout1.add_widget(Label("Gra nie jest dostosowana do gry w rozdzielczości innej "), 0)
         layout1.add_widget(Label("niż domyślna rozdzieczość terminala cmd"), 0)
         layout1.add_widget(Label("W przypadku zmiany rozdzielczości aplikacja zostanie zamknięta"), 0)
         layout1.add_widget(Label("zostanie zamknięta"), 0)
+
+        layout2 = Layout([1,1,1,1,1])
+        self.add_layout(layout2)
+        layout2.add_widget(Divider(line_char=""))
+        layout2.add_widget(Button("    BACK   ", self._back, add_box=False), 4)
+        self.fix()
+
+    def _back(self):
+        raise NextScene("MENU")
+
+class HowToPlay(Frame):
+    def __init__(self, screen):
+        super().__init__(screen,
+                         24,
+                         60,
+                         can_scroll=False,
+                         title="HOW TO PLAY",
+                         x=screen.width//2 - 30, y=screen.height-26
+                         )
+        self.set_theme("green")
+        layout1 = Layout([1], fill_frame=True)
+        self.add_layout(layout1)
+        layout1.add_widget(Label("W grze zmierzysz się z 3 przeciwnikami"), 0)
+        layout1.add_widget(Label("Są oni podatni na różne rodzaje magii"), 0)
+        layout1.add_widget(Label("Za wygraną otrzymasz złoto"), 0)
+        layout1.add_widget(Label("Możesz kupować różne ulepszenia u handlarzy"), 0)
 
         layout2 = Layout([1,1,1,1,1])
         self.add_layout(layout2)
@@ -895,6 +924,11 @@ def game(screen, scene):
         Info(screen)
     ]
     scenes.append(Scene(effectsINFO,-1,name="INFO"))
+    effectsHowToPlay = [
+        Julia(screen),
+        HowToPlay(screen)
+    ]
+    scenes.append(Scene(effectsHowToPlay,-1,name="HOWTOPLAY"))
     TownSpritePath = PlayerMove(screen, screen.width//2, screen.height-8)
     effectsTOWN = [
         TownSprite(screen, TownSpritePath),
