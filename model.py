@@ -179,7 +179,7 @@ class Player:
         self._maxhp = hp
         self._mana = mana
         self._maxmana = mana
-        self.name = "palladin"
+        self.name = "Palladin"
         self._gold = gold
         self._rest_value = 20
 

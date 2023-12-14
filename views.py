@@ -92,12 +92,11 @@ class FightFrame(Frame):
         raise NextScene(FightController.scene_controller("REST"))
 
     def get_player_hp_text(self):
-        """Helper method to format the HP text."""
+
         #print("HP {}/{}".format(FightController.getPlayerHP(), FightController.getMaxPlayerHP()))
         return "HP {}/{}".format(FightController.getPlayerHP(), FightController.getMaxPlayerHP())
 
     def get_monster_hp_text(self):
-        """Helper method to format the HP text."""
         #print("HP {}/{}".format(FightController.getMonsterHP(), FightController.getMaxMonsterHP()))
         return "HP {}/{}".format(FightController.getMonsterHP(), FightController.getMaxMonsterHP())
     def get_player_mana_text(self):
@@ -264,7 +263,6 @@ class NextSceneFrame(Frame):
             else:
                 raise NextScene("DEATH")
     def get_damage(self):
-        """Helper method to format the HP text."""
         if(self._moveto == "PLAYERTURN"):
             damage = FightController.getLastPlayerDamage
             if(damage == 0):
@@ -686,6 +684,7 @@ class HowToPlay(Frame):
         self.add_layout(layout1)
         layout1.add_widget(Label("W grze zmierzysz się z 3 przeciwnikami"), 0)
         layout1.add_widget(Label("Są oni podatni na różne rodzaje magii"), 0)
+        layout1.add_widget(Label("Twoje ataki mają różną szansę na trafienie"), 0)
         layout1.add_widget(Label("Za wygraną otrzymasz złoto"), 0)
         layout1.add_widget(Label("Możesz kupować różne ulepszenia u handlarzy"), 0)
 
