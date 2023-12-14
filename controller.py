@@ -1,7 +1,7 @@
 import model as mod
 from model import Player, Armor,Weapon,OffensiveSpell,Monster
-armor = Armor("basic",10,100 )
-weapon = Weapon("Sword", 100,100)
+armor = Armor("basic",5,100 )
+weapon = Weapon("Sword", 25,100)
 monster1 = Monster("Reaper", 40, 120, "THUNDER", "HOLY")
 monster2 = Monster("Centaur", 50, 200, "HOLY", "FIRE")
 monster3 = Monster("Dragon", 60, 300, "FIRE", "THUNDER")
@@ -58,6 +58,9 @@ class Shop:
             return item.damage
         else:
             return None
+
+    def count_items(self):
+        return len(self.items)
 
 class Wizard:
     def __init__(self):
@@ -140,9 +143,9 @@ class Fight:
 
         self._lastdamagemonster = self._player.take_damage(self._current.damage)
         self._isplayerdead = self._player.is_dead()
-        print("damage {} hp {} ".format(self._current.damage, self._player.hp))
+        #print("damage {} hp {} ".format(self._current.damage, self._player.hp))
     def playerTurn(self, option):
-        print("damage {} hp {} ".format(self._player.damage(option), self._current.hp))
+        #print("damage {} hp {} ".format(self._player.damage(option), self._current.hp))
         self._lastdamageplayer = self._current.take_damage(self._player.damage(option))
         self._ismonsterdead = self._current.is_dead()
 
@@ -181,7 +184,7 @@ class Fight:
     def check_mana(self,mana):
        return self._player.enoughMana(mana)
     def get_mana(self):
-        print("MANA IN CONTROLER {}".format(self._player.mana))
+        #print("MANA IN CONTROLER {}".format(self._player.mana))
         return self._player.mana
 
     def get_maxmana(self):
@@ -189,7 +192,7 @@ class Fight:
     def rest(self):
         self._player.rest()
         self._isresting = True
-        print(self._isresting)
+        #print(self._isresting)
 
     @property
     def isresting(self):
@@ -347,7 +350,6 @@ class Fight:
         # Reset the list of enemies
         self._enemies = [monster1, monster2, monster3, monster4]
 
-        # Set the current enemy to the first in the list
         self._current = self._enemies[0]
 
         # Reset other attributes
@@ -359,20 +361,25 @@ class Fight:
         self._isresting = False
 
         # Reset Blacksmith shop
+        self._blacksmith = None
         self._blacksmith = Shop()
-        self._blacksmith.add_item(armortobuy1)
-        self._blacksmith.add_item(armortobuy2)
-        self._blacksmith.add_item(armortobuy3)
+        self._blacksmith.add_item(Armor("Cloth Armor",10,20 ))
+        self._blacksmith.add_item(Armor("Bramble Vest",20,100 ))
+        self._blacksmith.add_item(Armor("Thornmail",30,200 ))
 
         # Reset WeaponMaster shop
+        self._weaponmaster = None
         self._weaponmaster = Shop()
-        self._weaponmaster.add_item(weapon1)
-        self._weaponmaster.add_item(weapon2)
-        self._weaponmaster.add_item(weapon3)
+        self._weaponmaster.add_item(Weapon("Better Sword", 50,10))
+        self._weaponmaster.add_item(Weapon("Bigger Sword", 100,100))
+        self._weaponmaster.add_item(Weapon("B.F Sword", 200,200))
 
         # Reset Wizard if its state changes during the game
         self._wizard = Wizard()
-
+    def Blacksmith_count_items(self):
+        return self._blacksmith.count_items()
+    def Weaponmaster_count_items(self):
+        return self._weaponmaster.count_items()
 
 
 

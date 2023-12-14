@@ -115,7 +115,7 @@ class Monster:
             if chance <= 10:
                 damage= 1
             self._hp = self._hp - damage//2
-            print("take_damage function damage {} hp {}".format(damage, self.hp))
+            #print("take_damage function damage {} hp {}".format(damage, self.hp))
             return damage//2
         elif (self._attacktype == "NORMAL"):
             if chance <= 40:
@@ -268,20 +268,20 @@ class Player:
             return True
 
     def damage(self,option):
-        print("option {}".format(option))
+        #print("option {}".format(option))
         if(option == "WEAPON"):
             return self._weapon.damage
         if(option == "FIREBALL"):
             self._mana -= 10
-            print("mana {}".format(self._mana))
+            #print("mana {}".format(self._mana))
             return self._fireball.damage
         if(option == "HOLYMISSLE"):
             self._mana -= 10
-            print("mana {}".format(self._mana))
+            #print("mana {}".format(self._mana))
             return self._holymissle.damage
         if (option == "THUNDERSTRIKE"):
             self._mana -= 10
-            print("mana {}".format(self._mana))
+           # print("mana {}".format(self._mana))
             return self._thunderstrike.damage
 
     def get_spell_damage(self,option):
@@ -300,7 +300,7 @@ class Player:
 
     def take_damage(self,damage):
         self._hp = self._hp - (damage-self._armor.reduction)
-        print("player take damage hp {} damage{}".format((damage-self._armor.reduction),self._hp))
+        #("player take damage hp {} damage{}".format((damage-self._armor.reduction),self._hp))
         return damage-self._armor.reduction
 
     def rest(self):

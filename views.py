@@ -1,7 +1,7 @@
 import time
 from controller import Fight
 from asciimatics.effects import Cycle, Stars, Snow, Print, Sprite, Julia
-from asciimatics.renderers import FigletText,StaticRenderer, BarChart, Rainbow, SpeechBubble
+from asciimatics.renderers import FigletText,StaticRenderer, BarChart, Rainbow, SpeechBubble, Fire, Plasma
 from asciimatics.particles import RingFirework, SerpentFirework, StarFirework, \
     PalmFirework
 from asciimatics.scene import Scene
@@ -65,7 +65,6 @@ class FightFrame(Frame):
         layout.add_widget(Button("MAGIC", self._magic, add_box=False), 1)
         layout.add_widget(Button("REST", self._rest, add_box=False), 2)
         layout.add_widget(Divider(line_char=""), 1)
-        layout.add_widget(Button("BACK", self._back, add_box=False), 1)
         PlayerHpValue = self.get_player_hp_text()
         self.player_hp_label = Label(PlayerHpValue)
         layout.add_widget(Label("PLAYER STATS"),3)
@@ -94,12 +93,12 @@ class FightFrame(Frame):
 
     def get_player_hp_text(self):
         """Helper method to format the HP text."""
-        print("HP {}/{}".format(FightController.getPlayerHP(), FightController.getMaxPlayerHP()))
+        #print("HP {}/{}".format(FightController.getPlayerHP(), FightController.getMaxPlayerHP()))
         return "HP {}/{}".format(FightController.getPlayerHP(), FightController.getMaxPlayerHP())
 
     def get_monster_hp_text(self):
         """Helper method to format the HP text."""
-        print("HP {}/{}".format(FightController.getMonsterHP(), FightController.getMaxMonsterHP()))
+        #print("HP {}/{}".format(FightController.getMonsterHP(), FightController.getMaxMonsterHP()))
         return "HP {}/{}".format(FightController.getMonsterHP(), FightController.getMaxMonsterHP())
     def get_player_mana_text(self):
         return "Mana {}/{}".format(FightController.get_mana(), FightController.get_maxmana())
@@ -216,6 +215,24 @@ class SpellType(Frame):
         self.EnoughMana()
         super(SpellType,self)._update(frame_no)
 
+class SkipFireFrame(Frame):
+    def __init__(self, screen):
+        super().__init__(screen,
+                         1,
+                         1,
+                         can_scroll=False,
+                         title="SKIP",
+                         x=-1, y=screen.height-7
+                         )
+        self.palette = get_palette()
+        layout = Layout([1,1,1], fill_frame=True)
+        self.add_layout(layout)
+        layout.add_widget(Button("               CONTINUE", self._continue, add_box=False), 1)
+
+
+    def _continue(self):
+        raise NextScene(FightController.scene_controller("FIGHT"));
+
 class NextSceneFrame(Frame):
     def __init__(self, screen, moveto):
         super().__init__(screen,
@@ -250,6 +267,8 @@ class NextSceneFrame(Frame):
         """Helper method to format the HP text."""
         if(self._moveto == "PLAYERTURN"):
             damage = FightController.getLastPlayerDamage
+            if(damage == 0):
+                return "You missed the attack"
             return "   {} attacked {} for {}".format(FightController.getPlayerName(), FightController.getMonsterName(), damage)
         else:
             damage = FightController.getLastMonsterDamage
@@ -304,6 +323,7 @@ class ShopFrameBlackSmith(Frame):
         self.price_label.text = "PRICE: {}".format(self._list_view.value)
         self.weapon_statistic_label.text = self.get_statistic()
         self.your_gold_label.text = "YOUR GOLD: {}".format(self.get_gold())
+
     def _buy(self):
         if(FightController.isEnoughGold(self._list_view.value)):
             self.save()
@@ -323,6 +343,11 @@ class ShopFrameBlackSmith(Frame):
     @staticmethod
     def _quit():
         raise NextScene("TOWN")
+
+    def _update(self, frame_no):
+        if (len(self._list_view.options) != FightController.Blacksmith_count_items()):
+            self._reload_list()
+        super(ShopFrameBlackSmith, self)._update(frame_no)
 
 class ShopFrameWeaponMaster(Frame):
     def __init__(self, screen):
@@ -361,10 +386,13 @@ class ShopFrameWeaponMaster(Frame):
         self.price_label.text = "PRICE: {}".format(self._list_view.value)
         self.weapon_statistic_label.text = self.get_statistic()
         self.your_gold_label.text = "YOUR GOLD: {}".format(self.get_gold())
+        if (len(self._list_view.options) != FightController.Blacksmith_count_items()):
+            self._reload_list()
+
     def _buy(self):
         if(FightController.isEnoughGold(self._list_view.value)):
             self.save()
-            print("ON CHANGE")
+            #print("ON CHANGE")
             FightController.buy_item_weaponmaster(self._list_view.value)
             self.your_gold_label.text = "YOUR GOLD: {}".format(self.get_gold())
             self._reload_list()
@@ -383,6 +411,11 @@ class ShopFrameWeaponMaster(Frame):
     def _quit():
         raise NextScene("TOWN")
 
+    def _update(self, frame_no):
+        if (len(self._list_view.options) != FightController.Blacksmith_count_items()):
+            self._reload_list()
+        super(ShopFrameWeaponMaster, self)._update(frame_no)
+
 
 class ShopFrameWizard(Frame):
     def __init__(self, screen):
@@ -395,7 +428,7 @@ class ShopFrameWizard(Frame):
                          )
         self.items = FightController.get_services_wizard()
         self.palette = get_palette()
-        print(self.items)
+        #print(self.items)
         self._list_view = ListBox(
             Widget.FILL_FRAME,
             self.items,
@@ -435,7 +468,7 @@ class ShopFrameWizard(Frame):
         return "PRICE: {}".format(FightController.get_wizard_price(self._list_view.value))
     def get_statistic(self):
         if(self._list_view.value == "FIREBALL"):
-            print("DAMAGE: {}".format(FightController.get_fireball_dmg()))
+            #print("DAMAGE: {}".format(FightController.get_fireball_dmg()))
             return "DAMAGE: {}".format(FightController.get_fireball_dmg())
         if (self._list_view.value == "HOLYMISSLE"):
             return "DAMAGE: {}".format(FightController.get_holymissle_dmg())
@@ -449,13 +482,17 @@ class ShopFrameWizard(Frame):
             return "REST: {}".format(FightController.get_rest_stats())
 
 
-
-
-
     @staticmethod
     def _quit():
         raise NextScene("TOWN")
 
+
+
+    def _update(self, frame_no):
+        self.price_label.text = self.get_price()
+        self.your_statistic.text = self.get_statistic()
+        self.your_gold_label.text = "YOUR GOLD: {}".format(self.get_gold())
+        super(ShopFrameWizard, self)._update(frame_no)
 
 
 
@@ -591,7 +628,7 @@ class Town(Frame):
         self.fix()
     @staticmethod
     def _fight():
-        raise NextScene(FightController.scene_controller("FIGHT"))
+        raise NextScene("FIRE")
 
     @staticmethod
     def _wizard():
@@ -1178,8 +1215,8 @@ def game(screen, scene):
             (RingFirework, 20, 30),
             (SerpentFirework, 30, 35),
         ]
-    firework, start, stop = choice(fireworks)
-    effectsWin.insert(
+        firework, start, stop = choice(fireworks)
+        effectsWin.insert(
             1,
             firework(screen,
                      randint(0, screen.width),
@@ -1206,15 +1243,15 @@ def game(screen, scene):
             (RingFirework, 20, 30),
             (SerpentFirework, 30, 35),
         ]
-    firework, start, stop = choice(fireworks)
-    effectsEndGame.insert(1,
-            firework(screen,
-                     randint(0, screen.width),
-                     randint(screen.height // 8, screen.height * 3 // 4),
-                     randint(start, stop),
-                     start_frame=randint(0, 250))
+        firework, start, stop = choice(fireworks)
+        effectsEndGame.insert(1,
+                firework(screen,
+                        randint(0, screen.width),
+                        randint(screen.height // 8, screen.height * 3 // 4),
+                        randint(start, stop),
+                        start_frame=randint(0, 250))
 
-    )
+                        )
     scenes.append(Scene(effectsEndGame, -1, name="ENDGAME"))
     BlacksmithPath = PlayerMove(screen, screen.width - 28, screen.height // 2 + 5)
     effectsBlackSmith = [
@@ -1234,6 +1271,37 @@ def game(screen, scene):
         ShopFrameWizard(screen)
     ]
     scenes.append(Scene(effectsWizard, -1, name="WIZARD"))
+    effectsFire = [
+        Print(screen,
+              Fire(screen.height, 80, "*" * 70, 0.8, 60, screen.colours,
+                   bg=screen.colours >= 256),
+              0,
+              speed=1,
+              transparent=False),
+        Print(screen,
+              FigletText("PREPARE", "banner3"),
+              (screen.height - 4) // 2,
+              colour=Screen.COLOUR_BLACK,
+              speed=1,
+              start_frame=30,
+              stop_frame=60),
+        Print(screen,
+              FigletText("TO", "banner3"),
+              (screen.height - 4) // 2,
+              colour=Screen.COLOUR_BLACK,
+              speed=1,
+              start_frame=60,
+              stop_frame=90),
+        Print(screen,
+              FigletText("FIGHT", "banner3"),
+              (screen.height - 4) // 2,
+              colour=Screen.COLOUR_BLACK,
+              speed=1,
+              start_frame=90,
+              stop_frame=120),
+        SkipFireFrame(screen)
+    ]
+    scenes.append(Scene(effectsFire, -1,name="FIRE"))
     screen.play(scenes, stop_on_resize=True, start_scene=scene)
 
 def screenchanger():
