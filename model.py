@@ -104,7 +104,7 @@ class Monster:
             self._hp = value
 
     def is_dead(self):
-        if(self._hp<0):
+        if(self._hp<=0):
             return True
         else:
             return False
@@ -272,15 +272,15 @@ class Player:
         if(option == "WEAPON"):
             return self._weapon.damage
         if(option == "FIREBALL"):
-            self._mana -= 10
+            self._mana -= 20
             #print("mana {}".format(self._mana))
             return self._fireball.damage
         if(option == "HOLYMISSLE"):
-            self._mana -= 10
+            self._mana -= 20
             #print("mana {}".format(self._mana))
             return self._holymissle.damage
         if (option == "THUNDERSTRIKE"):
-            self._mana -= 10
+            self._mana -= 20
            # print("mana {}".format(self._mana))
             return self._thunderstrike.damage
 
