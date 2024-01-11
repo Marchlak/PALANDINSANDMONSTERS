@@ -1243,3 +1243,5 @@ def fight():
 
 
         pygame.display.update()
+
+
