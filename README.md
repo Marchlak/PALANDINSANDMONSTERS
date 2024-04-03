@@ -1,19 +1,16 @@
+
 # "PALADINS AND MONSTERS"
-
-## Główne Założenia
-- Cel projektu: Stworzenie projektu gry turowej w strukturze mvc w trybie graficznym oraz tekstowym.
-
-## Opis Funkcjonalności
-### Gra przeciwko Komputerowi
-- Turowa walka przeciwko AI
-- Trzech różnych przeciwników.
-- Trzy różne sklepy do kupowania ulepszeń
-- Uruchamianie dwóch różnych trybów
-
-### Wykorzystane biblioteki
-- ASCIIMATCS
-- PYCHARM
-## Zdjęcia podglądowe
+## Main Assumptions
+- The goal of the project: To create a turn-based game project in an MVC structure in both graphical and textual modes.
+### Functionality Description
+-Game Against the Computer
+-Turn-based combat against AI
+-Three different opponents
+-Three different shops for purchasing upgrades
+-Launching two different modes
+### Libraries Used
+- ASCIIMATICS
+- PYGAME
 ![alt text](https://i.imgur.com/hCX4RFr.png)
 ![alt text](https://i.imgur.com/oEp37rA.png)
 ![alt text](https://i.imgur.com/QP0T0hW.png)
